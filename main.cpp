@@ -73,6 +73,33 @@ int main() {
     std::cout << "===TEST DATA INFO===\n";
     testData.printInfo();
 
+    std::ifstream fileParamsR("params.txt");
+    if (fileParamsR.is_open()) {
+        char c = fileParamsR.get();
+        while (fileParamsR.good()) {
+            std::cout << c;
+            c = fileParamsR.get();
+        }
+    } else {
+        std::cout << "No saved params\n";
+    }
+
+    char state = 0;
+    while (state != 'q') {
+        switch (state) {
+            case 1:
+            case 0:
+            default:
+                break;
+        }
+        std::cout << "=== Menu ===\n"
+                  << "1: Random Test\n"
+                  << "2: Train\n"
+                  << "3: Delete Saved Parameters\n"
+                  << "q: Exit";
+        std::cin >> state;
+    }
+
     /* Initialize parameters */
     DIMENSIONS[0] = trainData.getImgSize();
     auto params = initParams();
@@ -112,6 +139,21 @@ int main() {
     std::cout << "\nValidation Accuracy:\n";
     for (auto& e : listValidAccuracy) std::cout << e << " ";
     std::cout << std::endl;
+
+
+    std::ofstream fileParamsW("params.txt");
+    fileParamsW << LAYER_NUM << '\n';
+    for (int i = 0; i < LAYER_NUM; ++i) {
+        fileParamsW << DIMENSIONS[i] << ' ';
+    }
+    fileParamsW << '\n';
+    for (int i = 0; i < LAYER_NUM; ++i) {
+        fn f = ACTIVATIONS[i];
+        if (f == bypass) fileParamsW << 0 << ' ';
+        else if (f == softmax) fileParamsW << 2 << ' ';
+        else fileParamsW << 1 << ' ';
+    }
+    fileParamsW.close();
 
     int testRunNum = 4;
     printf("===Run %d Prediction on test data===\n", testRunNum);
