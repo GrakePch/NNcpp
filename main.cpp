@@ -73,7 +73,7 @@ int main() {
     std::cout << "===TEST DATA INFO===\n";
     testData.printInfo();
 
-    std::ifstream fileParamsR("params.txt");
+    std::ifstream fileParamsR("./saves/params.txt");
     if (fileParamsR.is_open()) {
         char c = fileParamsR.get();
         while (fileParamsR.good()) {
@@ -96,13 +96,36 @@ int main() {
                   << "1: Random Test\n"
                   << "2: Train\n"
                   << "3: Delete Saved Parameters\n"
-                  << "q: Exit";
+                  << "q: Exit\n";
         std::cin >> state;
     }
 
     /* Initialize parameters */
     DIMENSIONS[0] = trainData.getImgSize();
     auto params = initParams();
+
+    std::ofstream fileParamsW("./saves/params.txt");
+    fileParamsW << LAYER_NUM << '\n';
+    for (int i = 0; i < LAYER_NUM; ++i) {
+        fileParamsW << DIMENSIONS[i] << ' ';
+    }
+    fileParamsW << '\n';
+    for (int i = 0; i < LAYER_NUM; ++i) {
+        fn* f = ACTIVATIONS[i];
+        if (f == bypass) fileParamsW << 0 << ' ';
+        else if (f == softmax) fileParamsW << 2 << ' ';
+        else fileParamsW << 1 << ' ';
+    }
+    fileParamsW << '\n';
+    for (int i = 0; i < LAYER_NUM; ++i) {
+        for (auto b: params[i].b) fileParamsW << b << ' ';
+        fileParamsW << '\n';
+        for (auto v: params[i].w)
+            for (auto w: v)
+                fileParamsW << w << ' ';
+        fileParamsW << '\n';
+    }
+    fileParamsW.close();
 
     int currEpoch = 0;
     std::vector<float>
@@ -141,14 +164,13 @@ int main() {
     std::cout << std::endl;
 
 
-    std::ofstream fileParamsW("params.txt");
     fileParamsW << LAYER_NUM << '\n';
     for (int i = 0; i < LAYER_NUM; ++i) {
         fileParamsW << DIMENSIONS[i] << ' ';
     }
     fileParamsW << '\n';
     for (int i = 0; i < LAYER_NUM; ++i) {
-        fn f = ACTIVATIONS[i];
+        fn* f = ACTIVATIONS[i];
         if (f == bypass) fileParamsW << 0 << ' ';
         else if (f == softmax) fileParamsW << 2 << ' ';
         else fileParamsW << 1 << ' ';
